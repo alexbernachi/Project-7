@@ -1,6 +1,6 @@
 [gd_scene load_steps=4 format=3 uid="uid://ca8syuhd3m3gn"]
 
-[ext_resource type="Texture2D" uid="uid://da83sw5w7lqec" path="res://Player/icon.svg" id="1_4ds21"]
+[ext_resource type="Texture2D" uid="uid://da83sw5w7lqec" path="res://icon.svg" id="1_4ds21"]
 [ext_resource type="Script" path="res://Player/player.gd" id="1_g6d1r"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_s1hc6"]
