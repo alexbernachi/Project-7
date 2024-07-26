@@ -9,7 +9,11 @@ size = Vector2(128, 130)
 [node name="Node2D" type="Node2D"]
 
 [node name="Player" parent="." instance=ExtResource("1_55mg0")]
-position = Vector2(555, 444)
+position = Vector2(545, 432)
+Jump_Buffer_Time = 0.3
+Coyote_Jump_Time = 0.3
+Jump_Strength = -500.0
+Speed = 300.0
 
 [node name="StaticBody2D" type="StaticBody2D" parent="."]
 modulate = Color(1, 0, 0, 1)
