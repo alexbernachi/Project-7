@@ -8,14 +8,21 @@ extends CharacterBody2D
 @export var Coyote_Jump_Time :float
 
 @export var Jump_Strength: float
+@export var Jump_Time_to_Ascend : float
+@export var Jump_Time_to_Descend : float
+
+@onready var Jump_Velocity : float = ((2.0 * Jump_Strength ) / Jump_Time_to_Ascend) * -1.0
+@onready var Jump_Gravity : float = ((-2.0 * Jump_Strength) / (Jump_Time_to_Ascend * Jump_Time_to_Ascend)) * -1.0
+@onready var Fall_Gravity : float = ((-2.0 * Jump_Strength) / (Jump_Time_to_Descend * Jump_Time_to_Descend)) * -1.0
+
 @export var Speed : float
+
+@export var Engine_Speed: float
 
 var Jump_Available :bool = false
 var Jump_Buffer: bool = false
 
-# Get the gravity from the project settings to be synced with RigidDynamicBody nodes.
-var gravity = ProjectSettings.get_setting("physics/2d/default_gravity")
-
+var input: float
 
 func _physics_process(delta):
 
@@ -33,8 +40,7 @@ func _physics_process(delta):
 		if Coyote_Timer.is_stopped() and Jump_Available:
 			Coyote_Timer.start(Coyote_Jump_Time)
 		#putting gravity
-		velocity.y += gravity * delta
-		
+		velocity.y += Get_Gravity() * delta
 	
 	
 	# Handle Jump.
@@ -44,6 +50,10 @@ func _physics_process(delta):
 		Jump_Buffer_Timer.start(Coyote_Jump_Time)
 		if Jump_Available:
 			Jump()
+	
+	#Make variable Jump Height, holding down the button just increase their jump height
+	if Input.is_action_just_released("Jump") and velocity.y < 0.0 :
+		velocity.y = Jump_Velocity / 2
 		
 	# Get the input direction and handle the movement/deceleration.
 	var direction = Input.get_axis("Left", "Right")
@@ -52,28 +62,33 @@ func _physics_process(delta):
 	else:
 		velocity.x = move_toward(velocity.x, 0, Speed)
 	
-	
 	move_and_slide()
-	
 	Reset_Game()
 
 #make the player jump... WHAT ELSE DO YOU EXPECT?!?!?!
 func Jump() -> void:
-	velocity.y = Jump_Strength
+	velocity.y = Jump_Velocity
 	Jump_Available = false
 
 @warning_ignore("unused_parameter")
 func _process(delta):
+	Debug_Speed()
+	Debug_Handle()
+	Debug_View()
 
-#Toggle to see the Debug Feature
+#Change the game engine speed
+func Debug_Speed():
+	Engine.time_scale = Engine_Speed
+	
+	pass
+
+func Debug_Handle():
+	#Toggle to see the Debug Feature
 	if Input.is_action_just_pressed("Debug_View"):
 		if Debug_Text.visible == true:
 			Debug_Text.visible = false
 		else:
 			Debug_Text.visible = true
-	
-	
-	Debug_View()
 
 #Reset the Scene/Game 
 func Reset_Game():
@@ -90,6 +105,13 @@ func Debug_View():
 		+ "\n Jump Strength: " + str(velocity.y) \
 		+ "\n Speed: " + str(velocity.x)
 	pass
+
+#Give gravity either from a jump or walking off the stage
+func Get_Gravity () -> float:
+	if velocity.y < 0.0:
+		return Jump_Gravity
+	else:
+		return Fall_Gravity
 
 #turn off Coyote Jump
 func _on_coyote_timer_timeout():

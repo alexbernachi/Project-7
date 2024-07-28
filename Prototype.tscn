@@ -9,15 +9,18 @@ size = Vector2(128, 130)
 [node name="Node2D" type="Node2D"]
 
 [node name="Player" parent="." instance=ExtResource("1_55mg0")]
-position = Vector2(545, 432)
-Jump_Buffer_Time = 0.3
-Coyote_Jump_Time = 0.3
-Jump_Strength = -500.0
+position = Vector2(599, 429)
+Jump_Buffer_Time = 0.1
+Coyote_Jump_Time = 0.2
+Jump_Strength = 200.0
+Jump_Time_to_Ascend = 0.3
+Jump_Time_to_Descend = 0.2
 Speed = 300.0
+Engine_Speed = 1.0
 
 [node name="StaticBody2D" type="StaticBody2D" parent="."]
 modulate = Color(1, 0, 0, 1)
-position = Vector2(522, 574)
+position = Vector2(576, 571)
 scale = Vector2(4.32, 1)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="StaticBody2D"]
