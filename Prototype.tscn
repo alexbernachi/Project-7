@@ -10,13 +10,14 @@ size = Vector2(128, 130)
 
 [node name="Player" parent="." instance=ExtResource("1_55mg0")]
 position = Vector2(599, 429)
-Jump_Buffer_Time = 0.1
+Jump_Buffer_Time = 0.4
 Coyote_Jump_Time = 0.2
 Jump_Strength = 200.0
-Jump_Time_to_Ascend = 0.3
-Jump_Time_to_Descend = 0.2
-Speed = 300.0
-Engine_Speed = 1.0
+Jump_Time_to_Ascend = 0.4
+Jump_Time_to_Descend = 0.3
+Speed = 400.0
+Acceleration = 0.085
+Friction = 0.25
 
 [node name="StaticBody2D" type="StaticBody2D" parent="."]
 modulate = Color(1, 0, 0, 1)

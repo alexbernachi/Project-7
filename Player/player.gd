@@ -11,17 +11,22 @@ extends CharacterBody2D
 @export var Jump_Time_to_Ascend : float
 @export var Jump_Time_to_Descend : float
 
+#Jump_velocity calculate and give the player Jump
+#Jump Gravity and Fall Gravity calculate and give gravity to the player, depend on the Ascened and Descend
 @onready var Jump_Velocity : float = ((2.0 * Jump_Strength ) / Jump_Time_to_Ascend) * -1.0
 @onready var Jump_Gravity : float = ((-2.0 * Jump_Strength) / (Jump_Time_to_Ascend * Jump_Time_to_Ascend)) * -1.0
 @onready var Fall_Gravity : float = ((-2.0 * Jump_Strength) / (Jump_Time_to_Descend * Jump_Time_to_Descend)) * -1.0
 
 @export var Speed : float
+@export var Acceleration : float
+@export var Friction : float
 
-@export var Engine_Speed: float
+@export_range(0,1) var Engine_Speed: float = 1
 
 var Jump_Available :bool = false
 var Jump_Buffer: bool = false
 
+#check for Debug input
 var input: float
 
 func _physics_process(delta):
@@ -31,8 +36,11 @@ func _physics_process(delta):
 	if is_on_floor():
 		Coyote_Timer.stop()
 		Jump_Available = true
-		if Jump_Buffer and is_on_floor():
+	# If Jump buffer is on, It made the Player Jump
+		if Jump_Buffer:
+			if Input.is_action_pressed("Jump") :
 				Jump()
+			Jump_Buffer = false
 	
 	#check if it not on floor
 	if not is_on_floor():
@@ -45,22 +53,25 @@ func _physics_process(delta):
 	
 	# Handle Jump.
 	if Input.is_action_just_pressed("Jump"):
-		#Make Jump buffer true and start the timer
-		Jump_Buffer = true
-		Jump_Buffer_Timer.start(Coyote_Jump_Time)
+		
 		if Jump_Available:
 			Jump()
+		#Make Jump buffer true and start the timer
+		else:
+			Jump_Buffer = true
+			Jump_Buffer_Timer.start(Jump_Buffer_Time)
 	
 	#Make variable Jump Height, holding down the button just increase their jump height
-	if Input.is_action_just_released("Jump") and velocity.y < 0.0 :
-		velocity.y = Jump_Velocity / 2
+	if Input.is_action_just_released("Jump") and velocity.y < 0:
+		velocity.y = 0
 		
 	# Get the input direction and handle the movement/deceleration.
+	# Give the player some acceleration and Friction 
 	var direction = Input.get_axis("Left", "Right")
 	if direction:
-		velocity.x = direction * Speed
+		velocity.x = lerp(velocity.x, Speed * direction, Acceleration)
 	else:
-		velocity.x = move_toward(velocity.x, 0, Speed)
+		velocity.x = lerp(velocity.x, 0.0 , Friction)
 	
 	move_and_slide()
 	Reset_Game()
@@ -69,6 +80,16 @@ func _physics_process(delta):
 func Jump() -> void:
 	velocity.y = Jump_Velocity
 	Jump_Available = false
+
+#Give gravity either from a jump or walking off the stage
+func Get_Gravity () -> float:
+	if velocity.y < 0.0:
+		return Jump_Gravity
+	else:
+		return Fall_Gravity
+
+
+#region Debugging
 
 @warning_ignore("unused_parameter")
 func _process(delta):
@@ -95,6 +116,7 @@ func Reset_Game():
 	if Input.is_action_just_pressed("Reset"):
 		get_tree().reload_current_scene()
 	pass
+#endregion
 
 func Debug_View():
 	#Debug for Jump Buffer and Coyote Jump
@@ -106,12 +128,7 @@ func Debug_View():
 		+ "\n Speed: " + str(velocity.x)
 	pass
 
-#Give gravity either from a jump or walking off the stage
-func Get_Gravity () -> float:
-	if velocity.y < 0.0:
-		return Jump_Gravity
-	else:
-		return Fall_Gravity
+#region Timer Time out
 
 #turn off Coyote Jump
 func _on_coyote_timer_timeout():
@@ -122,3 +139,4 @@ func _on_coyote_timer_timeout():
 func Jump_Buffer_Timeout():
 	Jump_Buffer = false
 	pass # Replace with function body.
+#endregion
