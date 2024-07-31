@@ -21,6 +21,7 @@ extends CharacterBody2D
 @export var Acceleration : float
 @export var Friction : float
 
+#handle the Game engine Speed
 @export_range(0,1) var Engine_Speed: float = 1
 
 var Jump_Available :bool = false
@@ -29,18 +30,19 @@ var Jump_Buffer: bool = false
 #check for Debug input
 var input: float
 
-func _physics_process(delta):
+@warning_ignore("unused_parameter")
+func _process(delta):
+	Debug_Speed()
+	Debug_Handle()
+	Debug_View()
 
+func _physics_process(delta):
 	# checking if there are floor
 	#turn off coyote timer and check if jump buffer is on
 	if is_on_floor():
 		Coyote_Timer.stop()
 		Jump_Available = true
-	# If Jump buffer is on, It made the Player Jump
-		if Jump_Buffer:
-			if Input.is_action_pressed("Jump") :
-				Jump()
-			Jump_Buffer = false
+		Jump_Buffer_Handle()
 	
 	#check if it not on floor
 	if not is_on_floor():
@@ -50,10 +52,20 @@ func _physics_process(delta):
 		#putting gravity
 		velocity.y += Get_Gravity() * delta
 	
-	
-	# Handle Jump.
+	Player_Controller()
+	move_and_slide()
+	Reset_Game()
+
+func Jump_Buffer_Handle():
+	# If Jump buffer is on, It made the Player Jump
+	if Jump_Buffer:
+		if Input.is_action_pressed("Jump") :
+			Jump()
+		Jump_Buffer = false
+
+func Player_Controller():
+		# Handle Jump.
 	if Input.is_action_just_pressed("Jump"):
-		
 		if Jump_Available:
 			Jump()
 		#Make Jump buffer true and start the timer
@@ -72,9 +84,7 @@ func _physics_process(delta):
 		velocity.x = lerp(velocity.x, Speed * direction, Acceleration)
 	else:
 		velocity.x = lerp(velocity.x, 0.0 , Friction)
-	
-	move_and_slide()
-	Reset_Game()
+	pass
 
 #make the player jump... WHAT ELSE DO YOU EXPECT?!?!?!
 func Jump() -> void:
@@ -88,15 +98,7 @@ func Get_Gravity () -> float:
 	else:
 		return Fall_Gravity
 
-
 #region Debugging
-
-@warning_ignore("unused_parameter")
-func _process(delta):
-	Debug_Speed()
-	Debug_Handle()
-	Debug_View()
-
 #Change the game engine speed
 func Debug_Speed():
 	Engine.time_scale = Engine_Speed
@@ -116,7 +118,7 @@ func Reset_Game():
 	if Input.is_action_just_pressed("Reset"):
 		get_tree().reload_current_scene()
 	pass
-#endregion
+
 
 func Debug_View():
 	#Debug for Jump Buffer and Coyote Jump
@@ -127,6 +129,7 @@ func Debug_View():
 		+ "\n Jump Strength: " + str(velocity.y) \
 		+ "\n Speed: " + str(velocity.x)
 	pass
+	#endregion
 
 #region Timer Time out
 
